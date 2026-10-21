@@ -53,6 +53,26 @@ LightNav emits the base actions of `keyboard_base`: `x.vel` and `y.vel` in m/s (
 
 Instructions work best with one action verb, an optional direction, and an unambiguous object, for example _"Turn left and walk to the red lamppost"_ or _"Walk to the vase on the dining table ahead."_ See LightNav's [prompt guide](https://github.com/lightorigins/LightNav-0#%EF%B8%8F-prompt-guide).
 
+### Microduck
+
+The [Microduck](./microduck) walks with its onboard policy and takes the same base actions. Set up the `robotd` tunnel as in its guide, then send forward and turning commands only, at the duck's pad limits, which LightNav's MicroDuck simulation also uses:
+
+```bash
+lerobot-teleoperate \
+    --robot.type=microduck --robot.remote_ip="$DUCK_IP" \
+    --robot.robotd_address=127.0.0.1:17000 \
+    --base_teleop.type=lightnav \
+    --base_teleop.server_url=ws://<gpu-host>:8050 \
+    --base_teleop.instruction="Turn around and walk to the TV" \
+    --base_teleop.holonomic=false \
+    --base_teleop.max_linear_speed=0.3 --base_teleop.max_angular_speed=86 \
+    --fps=15
+```
+
+The camera is in the head, and the waypoints assume it looks where the body goes. Without `--teleop`, the head holds the pose it had when teleoperation started, so start with the head centered.
+
+The duck's upright picture is portrait (640 x 360), while `lightnav-serve` stretches every frame to the checkpoint's landscape size by default. Try starting the server with `--aspect_mode keep`. This setup has not been validated on a real duck yet.
+
 ## How the base is driven
 
 A background thread keeps one request in flight. It sends the newest camera frame to the server and waits for the reply, so the control loop never blocks on the network. Frames that arrive while a request is pending replace each other; only the newest one is sent. A camera slower than the control loop usually returns the same array until its next picture, and that picture is sent once, so the model's history is not padded with repeats. The server keeps the frame history, so the model sees as many frames as the round trip allows.
