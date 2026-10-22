@@ -12,9 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lerobot.utils.action_interpolator import ActionInterpolator as ActionInterpolator
+from lerobot.utils import ActionInterpolator as ActionInterpolator
 
 from .act.configuration_act import ACTConfig as ACTConfig
+from .chunk import (
+    ChunkPolicySpec,
+    ExecutionMode,
+    FeatureSpec,
+)
 from .diffusion.configuration_diffusion import DiffusionConfig as DiffusionConfig
 from .dm05.configuration_dm05 import DM05Config as DM05Config
 from .eo1.configuration_eo1 import EO1Config as EO1Config
@@ -33,11 +38,19 @@ from .pi0.configuration_pi0 import PI0Config as PI0Config
 from .pi0_fast.configuration_pi0_fast import PI0FastConfig as PI0FastConfig
 from .pi05.configuration_pi05 import PI05Config as PI05Config
 from .pretrained import PreTrainedPolicy as PreTrainedPolicy
+from .rtc import (
+    ActionQueue,
+    QueueSnapshot,
+    RTCConfig,
+    reanchor_relative_rtc_prefix,
+    validate_trained_rtc_horizon,
+)
 from .smolvla.configuration_smolvla import SmolVLAConfig as SmolVLAConfig
 from .tdmpc.configuration_tdmpc import TDMPCConfig as TDMPCConfig
 from .utils import make_robot_action, prepare_observation_for_inference
 from .vla_jepa.configuration_vla_jepa import VLAJEPAConfig as VLAJEPAConfig
 from .vqbet.configuration_vqbet import VQBeTConfig as VQBeTConfig
+from .wall_oss_05.configuration_wall_oss_05 import WallOSS05Config as WallOSS05Config
 from .wall_x.configuration_wall_x import WallXConfig as WallXConfig
 from .xvla.configuration_xvla import XVLAConfig as XVLAConfig
 
@@ -69,11 +82,21 @@ __all__ = [
     "VLAJEPAConfig",
     "VQBeTConfig",
     "WallXConfig",
+    "WallOSS05Config",
     "XVLAConfig",
+    # Chunk execution contracts
+    "ChunkPolicySpec",
+    "ExecutionMode",
+    "FeatureSpec",
     # Base class
     "PreTrainedPolicy",
     # RTC utilities
     "ActionInterpolator",
+    "ActionQueue",
+    "QueueSnapshot",
+    "RTCConfig",
+    "reanchor_relative_rtc_prefix",
+    "validate_trained_rtc_horizon",
     # Utility functions
     "make_robot_action",
     "prepare_observation_for_inference",
