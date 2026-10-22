@@ -17,6 +17,7 @@
 # Tests that require an extra not installed in the current tier are
 # skipped automatically via pytest.importorskip guards.
 name: Fast Tests
+run-name: "CI benchmark r4 PR #5044 — serial-original"
 
 on:
   # Allows running this workflow manually from the Actions tab
@@ -34,7 +35,7 @@ on:
       - "Makefile"
   push:
     branches:
-      - main
+      - "codex/ci-bench-r4-20261022-*"
     paths:
       - "src/**"
       - "tests/**"
@@ -69,7 +70,7 @@ jobs:
       MUJOCO_GL: egl
       HF_HOME: /mnt/cache/.cache/huggingface
       HF_LEROBOT_HOME: /mnt/cache/.cache/huggingface/lerobot
-      HF_USER_TOKEN: ${{ secrets.LEROBOT_HF_USER }}
+      HF_USER_TOKEN: ""
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
