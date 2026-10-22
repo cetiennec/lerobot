@@ -17,6 +17,7 @@
 # Tests that require an extra not installed in the current tier are
 # skipped automatically via pytest.importorskip guards.
 name: Fast Tests
+run-name: "CI benchmark r4 PR #5053 — serial-apt"
 
 on:
   # Allows running this workflow manually from the Actions tab
@@ -34,7 +35,7 @@ on:
       - "Makefile"
   push:
     branches:
-      - main
+      - "codex/ci-bench-r4-20261022-*"
     paths:
       - "src/**"
       - "tests/**"
@@ -69,7 +70,7 @@ jobs:
       MUJOCO_GL: egl
       HF_HOME: /mnt/cache/.cache/huggingface
       HF_LEROBOT_HOME: /mnt/cache/.cache/huggingface/lerobot
-      HF_USER_TOKEN: ${{ secrets.LEROBOT_HF_USER }}
+      HF_USER_TOKEN: ""
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -83,10 +84,20 @@ jobs:
 
       # TODO(Steven): Evaluate the need of these dependencies
       - name: Install apt dependencies
+        timeout-minutes: 5
         run: |
-          sudo apt-get update && sudo apt-get install -y build-essential git \
-          curl libglib2.0-0 libegl1-mesa-dev ffmpeg \
-          libusb-1.0-0-dev speech-dispatcher libgeos-dev portaudio19-dev
+          # The Azure mirror can stall for 20+ minutes before falling back.
+          # Keep the runner's official Ubuntu archive and security mirrors.
+          # https://github.com/actions/runner-images/issues/14594
+          if [[ -f /etc/apt/apt-mirrors.txt ]]; then
+            sudo sed -i '\|://azure\.archive\.ubuntu\.com/|d' /etc/apt/apt-mirrors.txt
+          fi
+          apt_options=(-o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15)
+          sudo apt-get "${apt_options[@]}" update
+          # Recommended speech models and GPU drivers are not needed by the tests.
+          sudo apt-get "${apt_options[@]}" install -y --no-install-recommends build-essential git \
+            curl libglib2.0-0 libegl1-mesa-dev ffmpeg \
+            libusb-1.0-0-dev speech-dispatcher libgeos-dev portaudio19-dev
 
       - name: Setup uv and Python
         uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990  # v8.3.2
